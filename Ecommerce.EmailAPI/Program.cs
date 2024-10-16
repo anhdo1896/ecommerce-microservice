@@ -1,6 +1,7 @@
 using Ecommerce.EmailAPI.Data;
 using Ecommerce.EmailAPI.Messaging;
 using Ecommerce.Service.EmailAPI.Extension;
+using Ecommerce.Service.EmailAPI.Messaging;
 using Ecommerce.Service.EmailAPI.Services;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -20,7 +21,9 @@ optionBuilder.UseSqlServer(builder.Configuration.GetConnectionString("DefaultCon
 
 builder.Services.AddSingleton(new EmailService(optionBuilder.Options));
 
-
+builder.Services.AddHostedService<RabbitMQAuthConsumer>();
+builder.Services.AddHostedService<RabbitMQOrderConsumer>();
+builder.Services.AddHostedService<RabbitMQCartConsumer>();
 
 builder.Services.AddSingleton<IAzureServiceBusConsumer, AzureServiceBusConsumer>();
 

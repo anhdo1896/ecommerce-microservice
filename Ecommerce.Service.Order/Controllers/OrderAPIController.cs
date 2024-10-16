@@ -23,11 +23,12 @@ namespace Ecommerce.Service.Order.Controllers
         private IMapper _mapper;
         private readonly DataContext _db;
         private IProductService _productService;
-        private readonly IMessageBus _messageBus;
+        //private readonly IMessageBus _messageBus;
+        private readonly IRabbmitMQFanoutMessageSender _messageBus;
         private readonly IConfiguration _configuration;
         public OrderAPIController(DataContext db,
             IProductService productService, IMapper mapper, IConfiguration configuration
-            , IMessageBus messageBus)
+            , IRabbmitMQFanoutMessageSender messageBus)
         {
             _db = db;
             _messageBus = messageBus;
@@ -200,7 +201,8 @@ namespace Ecommerce.Service.Order.Controllers
                         UserId = orderHeader.UserId
                     };
                     string topicName = _configuration.GetValue<string>("TopicAndQueueNames:OrderCreatedTopic");
-                    await _messageBus.PublishMessage(rewardsDto, topicName);
+                    //await _messageBus.PublishMessage(rewardsDto, topicName);
+                    _messageBus.SendMessage(rewardsDto, topicName);
                     _response.Data = _mapper.Map<OrderHeaderDto>(orderHeader);
                 }
 

@@ -10,10 +10,11 @@ namespace Ecommerce.Service.AuthAPI.Controllers
     public class AuthAPIController : Controller
     {
         private readonly IAuthService _authService;
-        private readonly IMessageBus _messageBus;
+        //private readonly IMessageBus _messageBus;
+        private readonly IRabbitMQBasicMessageSender _messageBus;
         private readonly IConfiguration _configuration;
         protected ResponseDto _response;
-        public AuthAPIController(IAuthService authService, IMessageBus messageBus, IConfiguration configuration)
+        public AuthAPIController(IAuthService authService, IRabbitMQBasicMessageSender messageBus, IConfiguration configuration)
         {
             _authService = authService;
             _configuration = configuration;
@@ -35,7 +36,8 @@ namespace Ecommerce.Service.AuthAPI.Controllers
                 return BadRequest(_response);
             }
             var topic_name = _configuration.GetValue<string>("TopicAndQueueNames:RegisterUserQueue");
-            await _messageBus.PublishMessage(model.Email, topic_name);
+            //await _messageBus.PublishMessage(model.Email, topic_name);
+            _messageBus.SendMessage(model.Email, _configuration.GetValue<string>("TopicAndQueueNames:RegisterUserQueue"));
             return Ok(_response);
         }
 

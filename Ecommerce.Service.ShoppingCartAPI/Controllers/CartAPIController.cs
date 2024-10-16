@@ -23,11 +23,12 @@ namespace Ecommerce.Service.ShoppingCartAPI.Controllers
         private IProductService _productService;
         private ICouponService _couponService;
         private IConfiguration _configuration;
-        private readonly IMessageBus _messageBus;
+        //private readonly IMessageBus _messageBus;
+        private readonly IRabbitMQBasicMessageSender _messageBus;
 
         public CartAPIController(DataContext db,
-            IMapper mapper, IProductService productService, ICouponService couponService, 
-            IMessageBus messageBus, IConfiguration configuration)
+            IMapper mapper, IProductService productService, ICouponService couponService,
+            IRabbitMQBasicMessageSender messageBus, IConfiguration configuration)
         {
             _db = db;
             _productService = productService;
@@ -105,7 +106,8 @@ namespace Ecommerce.Service.ShoppingCartAPI.Controllers
         {
             try
             {
-                await _messageBus.PublishMessage(cartDto, _configuration.GetValue<string>("TopicAndQueueNames:EmailShoppingCartQueue"));
+                //await _messageBus.PublishMessage(cartDto, _configuration.GetValue<string>("TopicAndQueueNames:EmailShoppingCartQueue"));
+                _messageBus.SendMessage(cartDto, _configuration.GetValue<string>("TopicAndQueueNames:EmailShoppingCartQueue"));
                 _response.Data = true;
             }
             catch (Exception ex)
