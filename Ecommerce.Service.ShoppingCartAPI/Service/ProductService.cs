@@ -12,17 +12,17 @@ namespace Ecommerce.Service.ShoppingCartAPI.Service
         {
             _httpClientFactory = clientFactory;
         }
-        public async Task<IEnumerable<ProductDto>> GetProducts()
+        public async Task<ProductDto> GetProducts(int id)
         {
             var client = _httpClientFactory.CreateClient("Product");
-            var response = await client.GetAsync($"/api/product");
-            var apiContet = await response.Content.ReadAsStringAsync();
-            var resp = JsonConvert.DeserializeObject<ResponseDto>(apiContet);
+            var response = await client.GetAsync($"/api/product/{id}");
+            var apiContent = await response.Content.ReadAsStringAsync();
+            var resp = JsonConvert.DeserializeObject<ResponseDto>(apiContent);
             if (resp.IsSuccess)
             {
-                return JsonConvert.DeserializeObject<IEnumerable<ProductDto>>(Convert.ToString(resp.Data));
+                return JsonConvert.DeserializeObject<ProductDto>(Convert.ToString(resp.Data));
             }
-            return new List<ProductDto>();
+            return null;
         }
     }
 }

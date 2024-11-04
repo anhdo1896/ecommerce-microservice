@@ -18,6 +18,19 @@ builder.Services.AddDbContext<DataContext>(option =>
 IMapper mapper = MappingConfig.RegisterMaps().CreateMapper();
 builder.Services.AddSingleton(mapper);
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+builder.Services.AddControllersWithViews()
+    . AddNewtonsoftJson(options =>
+    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+);
+
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(
+        policy =>
+        {
+            policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:3000");
+        });
+});
 
 builder.Services.AddControllers();
 builder.Services.AddScoped(typeof (IGenericService<>), typeof (GenericService<>));
@@ -65,6 +78,8 @@ app.UseSwaggerUI(c =>
     }
 });
 app.UseHttpsRedirection();
+
+app.UseCors();
 
 app.UseAuthentication();
 

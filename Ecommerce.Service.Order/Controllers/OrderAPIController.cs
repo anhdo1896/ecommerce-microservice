@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Stripe;
 using Stripe.Checkout;
 using System;
+using System.Collections.Generic;
 
 namespace Ecommerce.Service.Order.Controllers
 {
@@ -79,6 +80,33 @@ namespace Ecommerce.Service.Order.Controllers
             return _response;
         }
 
+        [Authorize]
+        [HttpGet("GetOrderByStatus/{userId}/{status}")]
+        public ResponseDto? GetOrderByStatus(string userId, string status)
+        {
+            try
+            {
+                IEnumerable<OrderHeader> orderHeaders;
+
+                if (status == SD.Status_All)
+                {
+                   orderHeaders = _db.OrderHeaders.Include(u => u.OrderDetails).Where(u => u.UserId == userId).ToList();
+                   _response.Data = _mapper.Map <IEnumerable<OrderHeaderDto>>(orderHeaders);
+                }
+                else
+                {
+                    orderHeaders = _db.OrderHeaders.Include(u => u.OrderDetails).Where(u => u.UserId == userId && u.Status == status).ToList();
+                    _response.Data = _mapper.Map<OrderHeaderDto[]>(orderHeaders);
+                }
+              
+            }
+            catch (Exception ex)
+            {
+                _response.IsSuccess = false;
+                _response.Message = ex.Message;
+            }
+            return _response;
+        }
 
 
         [Authorize]
@@ -91,6 +119,7 @@ namespace Ecommerce.Service.Order.Controllers
                 orderHeaderDto.OrderTime = DateTime.Now;
                 orderHeaderDto.Status = SD.Status_Pending;
                 orderHeaderDto.OrderDetails = _mapper.Map<IEnumerable<OrderDetailsDto>>(cartDto.CartDetails);
+
                 orderHeaderDto.OrderTotal = Math.Round(orderHeaderDto.OrderTotal, 2);
                 OrderHeader orderCreated = _db.OrderHeaders.Add(_mapper.Map<OrderHeader>(orderHeaderDto)).Entity;
                 await _db.SaveChangesAsync();
@@ -138,7 +167,7 @@ namespace Ecommerce.Service.Order.Controllers
                         PriceData = new SessionLineItemPriceDataOptions
                         {
                             UnitAmount = (long)(item.Price * 100), // $20.99 -> 2099
-                            Currency = "usd",
+                            Currency = "aud",
                             ProductData = new SessionLineItemPriceDataProductDataOptions
                             {
                                 Name = item.Product.Name
@@ -161,6 +190,7 @@ namespace Ecommerce.Service.Order.Controllers
                 orderHeader.StripeSessionId = session.Id;
                 _db.SaveChanges();
                 _response.Data = stripeRequestDto;
+
 
             }
             catch (Exception ex)
@@ -232,8 +262,8 @@ namespace Ecommerce.Service.Order.Controllers
                             PaymentIntent = orderHeader.PaymentIntentId
                         };
 
-                        var service = new RefundService();
-                        Refund refund = service.Create(options);
+                       /* var service = new RefundService();
+                        Refund refund = service.Create(options);*/
                     }
                     orderHeader.Status = newStatus;
                     _db.SaveChanges();

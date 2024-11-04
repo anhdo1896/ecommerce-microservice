@@ -33,6 +33,7 @@
 
 	<ItemGroup>
     <Folder Include="Helpers\" />
+    <Folder Include="wwwroot\Avatar\" />
   </ItemGroup>
 
 

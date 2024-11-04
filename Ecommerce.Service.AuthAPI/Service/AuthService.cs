@@ -3,6 +3,7 @@ using Ecommerce.Service.AuthAPI.Dtos;
 using Ecommerce.Service.AuthAPI.Models;
 using Ecommerce.Service.AuthAPI.Service.IService;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Http;
 using System;
 
 namespace Ecommerce.Service.AuthAPI.Service
@@ -42,7 +43,7 @@ namespace Ecommerce.Service.AuthAPI.Service
 
         public async Task<LoginResponseDto> Login(LoginRequestDto loginRequestDto)
         {
-            var user = _db.ApplicationUsers.FirstOrDefault(u => u.UserName.ToLower() == loginRequestDto.UserName.ToLower());
+            var user = _db.ApplicationUsers.FirstOrDefault(u => u.UserName.ToLower() == loginRequestDto.Email.ToLower());
 
             bool isValid = await _userManager.CheckPasswordAsync(user, loginRequestDto.Password);
 
@@ -53,20 +54,26 @@ namespace Ecommerce.Service.AuthAPI.Service
 
             //if user was found , Generate JWT Token
             var roles = await _userManager.GetRolesAsync(user);
-            var token = _jwtTokenGenerator.GenerateToken(user, roles);
+            var token = "Bearer " + _jwtTokenGenerator.GenerateToken(user, roles);
+            var tokenRefresh = "Bearer " + _jwtTokenGenerator.GenerateRefreshToken(user, roles);
 
             UserDto userDTO = new()
             {
                 Email = user.Email,
                 ID = user.Id,
                 Name = user.Name,
-                PhoneNumber = user.PhoneNumber
+                PhoneNumber = user.PhoneNumber,
+                Roles = roles,
+                Address = user.Address,
+                Avatar = user.Avatar,
+                DateOfBirth= user.DateOfBirth
             };
 
             LoginResponseDto loginResponseDto = new LoginResponseDto()
             {
                 User = userDTO,
-                Token = token
+                Token = token, 
+                RefreshToken= tokenRefresh
             };
 
             return loginResponseDto;
@@ -74,13 +81,14 @@ namespace Ecommerce.Service.AuthAPI.Service
 
         public async Task<string> Register(RegistrationRequestDto registrationRequestDto)
         {
+
             ApplicationUser user = new()
             {
                 UserName = registrationRequestDto.Email,
                 Email = registrationRequestDto.Email,
                 NormalizedEmail = registrationRequestDto.Email.ToUpper(),
-                Name = registrationRequestDto.Name,
-                PhoneNumber = registrationRequestDto.PhoneNumber
+                Name = registrationRequestDto.Name != null ? registrationRequestDto.Name : "",
+                PhoneNumber = registrationRequestDto.PhoneNumber != null ? registrationRequestDto.PhoneNumber : ""
             };
 
             try
@@ -113,5 +121,119 @@ namespace Ecommerce.Service.AuthAPI.Service
             }
             return "Error Encountered";
         }
+
+        public  async Task<ApplicationUser> EditUser(UserRequestDto registrationRequestDto)
+        {
+            var user = _db.ApplicationUsers.FirstOrDefault(u => u.UserName.ToLower() == registrationRequestDto.Email.ToLower());
+
+
+            user.Name = registrationRequestDto.Name != null ? registrationRequestDto.Name : "";
+            user.PhoneNumber = registrationRequestDto.PhoneNumber != null ? registrationRequestDto.PhoneNumber : "";
+            user.Address = registrationRequestDto.Address != null ? registrationRequestDto.Address : "";
+            user.Avatar = registrationRequestDto.AvatarUrl != null ? registrationRequestDto.AvatarUrl : "";
+            user.DateOfBirth = (DateTime)registrationRequestDto.DateOfBirth;
+
+
+            try
+            {
+                var result = await _userManager.UpdateAsync(user);
+                if (result.Succeeded)
+                {
+                    var userToReturn = _db.ApplicationUsers.First(u => u.UserName == registrationRequestDto.Email);
+
+                   
+                    return userToReturn;
+
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return null;
+
+            }
+        }
+
+        public async Task<string> ChangePassword (ChangePasswordDto changePassword)
+        {
+            var user = _db.ApplicationUsers.FirstOrDefault(u => u.UserName.ToLower() == changePassword.Email.ToLower());
+
+            try
+            {
+                var result = await _userManager.ChangePasswordAsync(user, changePassword.CurrentPassword, changePassword.NewPassword);
+                if (result.Succeeded)
+                {
+                  
+                    return "";
+
+                }
+                else
+                {
+                    return result.Errors.FirstOrDefault().Description;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return ex.Message;
+            }
+        }
+
+        public async Task<UserDto> GetUser(string id)
+        {
+            try
+            {
+
+                var user = _db.ApplicationUsers.FirstOrDefault(u => u.Id == id);
+                var roles = await _userManager.GetRolesAsync(user);
+                UserDto userDTO = new()
+                {
+                    Email = user.Email,
+                    ID = user.Id,
+                    Name = user.Name,
+                    PhoneNumber = user.PhoneNumber,
+                    Roles = roles,
+                    Address = user.Address,
+                    Avatar = user.Avatar,
+                    DateOfBirth= user.DateOfBirth
+                };
+                return userDTO;
+
+            }
+            catch (Exception ex)
+            {
+            }
+            return null;
+
+        }
+
+        public async Task<RefreshResponseDto> Refresh(RefreshTokenRequest refreshTokenRequest)
+        {
+
+            ApplicationUser user = new()
+            {
+                Email = refreshTokenRequest.Email,
+                Id = refreshTokenRequest.Id,
+                UserName = refreshTokenRequest.Username,
+            };
+            //if user was found , Generate JWT Token
+            var token = "Bearer " + _jwtTokenGenerator.GenerateToken(user, refreshTokenRequest.roles);
+            var tokenRefresh = "Bearer " + _jwtTokenGenerator.GenerateRefreshToken(user, refreshTokenRequest.roles);
+
+
+
+            RefreshResponseDto loginResponseDto = new RefreshResponseDto()
+            {
+                Token = token,
+                RefreshToken = tokenRefresh
+            };
+
+            return loginResponseDto;
+        }
     }
+
 }

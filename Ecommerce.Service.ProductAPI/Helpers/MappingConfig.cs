@@ -11,10 +11,12 @@ namespace Ecommerce.Service.ProductAPI.Helpers
             var mappingConfig = new MapperConfiguration(config =>
             {
                 config.CreateMap<Product, ProductDto>()
-                .ForMember(d => d.BrandId,
-                    o => o.MapFrom(s => s.BrandId))
+                .ForMember(d => d.BrandId, o => o.MapFrom(s => s.BrandId))
+               
                 .ForMember(d => d.CategoryId, o => o.MapFrom(s => s.CategoryId))
-                .ForMember(d => d.ImagePhotos, o => o.Ignore()).ReverseMap();
+                 .ReverseMap()
+                .ForMember(d => d.Images, o => o.MapFrom(s => s.Images))
+                .ForMember(d => d.Id, o => o.MapFrom(s => s.Id));
 
             });
             return mappingConfig;

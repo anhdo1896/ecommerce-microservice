@@ -16,6 +16,7 @@ namespace Ecommerce.Service.Order.Models
         public ProductDto? Product { get; set; }
         public int Count { get; set; }
         public string ProductName { get; set; }
+        public string ProductImage { get; set; }
         public double Price { get; set; }
     }
 }

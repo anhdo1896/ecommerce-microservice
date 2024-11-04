@@ -15,6 +15,7 @@ namespace Ecommerce.Service.Order.Helpers
 
                 config.CreateMap<CartDetailsDto, OrderDetailsDto>()
                 .ForMember(dest => dest.ProductName, u => u.MapFrom(src => src.Product.Name))
+                .ForMember(dest => dest.ProductImage, u => u.MapFrom(src =>src.Product.Images.FirstOrDefault().Url))
                 .ForMember(dest => dest.Price, u => u.MapFrom(src => src.Product.Price));
 
                 config.CreateMap<OrderDetailsDto, CartDetailsDto>();

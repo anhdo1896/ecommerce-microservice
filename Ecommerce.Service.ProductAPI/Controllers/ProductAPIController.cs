@@ -57,10 +57,10 @@ namespace Ecommerce.Service.ProductAPI.Controllers
                 for(int i=0; i < products.Count; i++)
                 {
                     var specPhoto = new PhotoWithProductSpecification(products[i].Id);
-                    var photos = await _repoPhoto.GetEntityWithSpec(specPhoto);
+                    var photos = await _repoPhoto.ListAsync(specPhoto);
                     if(photos != null)
                     {
-                        products[i].Images.Add(photos);
+                        products[i].Images = photos;
 
                     }
                 }
@@ -85,7 +85,7 @@ namespace Ecommerce.Service.ProductAPI.Controllers
         public async Task<ActionResult<ResponseDto>> Get(int id)
         {
             try
-            {
+            {   
                 var spec = new ProductsWithTypesAndBrandsSpecification(id);
 
                 var product = await _repoProduct.GetEntityWithSpec(spec);
@@ -93,7 +93,19 @@ namespace Ecommerce.Service.ProductAPI.Controllers
                 if (product == null)
                     return NotFound();
 
-                _response.Data = _mapper.Map<Product, ProductDto>(product); ;
+
+               
+                var specPhoto = new PhotoWithProductSpecification(product.Id);
+                var photos = await _repoPhoto.ListAsync(specPhoto);
+                if (photos != null)
+                {
+                    product.Images = photos;
+
+                }
+               
+                _response.Data = _mapper.Map<Product, ProductDto>(product); 
+
+
             }
             catch (Exception ex)
             {
@@ -118,7 +130,7 @@ namespace Ecommerce.Service.ProductAPI.Controllers
                     for (int i = 0; i < productDto.ImagePhotos.Count; i++)
                     {
                         var photo = new Photo();
-                        string fileName = id +"_" +DateTime.Now.ToString("yyyy-MM-dd_hh-mm-ss-tt") + Path.GetExtension(productDto.ImagePhotos[i].FileName);
+                        string fileName = id +"_" +DateTime.Now.ToString("yyyy-MM-dd_hh-mm-ss-tt") + i + Path.GetExtension(productDto.ImagePhotos[i].FileName);
                         string filePath = @"wwwroot\ProductImages\" + fileName;
 
                         // if condition to remove the any image with same name if that exist in the folder by any change
@@ -254,11 +266,21 @@ namespace Ecommerce.Service.ProductAPI.Controllers
         }
 
         [HttpGet("brands")]
-        public async Task<ActionResult<List<Brand>>> GetListBrands()
+        public async Task<ActionResult<ResponseDto>> GetListBrands()
         {
-            var brands = await _repoBrand.GetListAsync();
+            try
+            {
+                var brands = await _repoBrand.GetListAsync();
+                _response.Data = brands;
 
-            return Ok(brands);
+            }
+            catch (Exception ex)
+            {
+                _response.IsSuccess = false;
+                _response.Message = ex.Message;
+            }
+           
+            return _response;
         }
 
         [HttpPost("brands")]
@@ -294,11 +316,20 @@ namespace Ecommerce.Service.ProductAPI.Controllers
 
 
         [HttpGet("categories")]
-        public async Task<ActionResult<List<Category>>> GetListProductTypes()
+        public async Task<ActionResult<ResponseDto>> GetListProductTypes()
         {
-            var types = await _repoCategory.GetListAsync();
+            try
+            {
+                var types = await _repoCategory.GetListAsync();
+                _response.Data = types;
+            }
+            catch(Exception ex)
+            {
+                _response.IsSuccess = false;
+                _response.Message = ex.Message;
+            }
 
-            return Ok(types);
+            return _response;
         }
 
         [HttpPost("categories")]

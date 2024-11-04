@@ -15,7 +15,7 @@ namespace Ecommerce.Service.ProductAPI.Models
         public int BrandId { get; set; }
         public Brand Brand { get; set; }
 
-        public ICollection<Photo> Images { get; set; }
+        public IReadOnlyList<Photo> Images { get; set; }
         public string? Image { get; set; }
         public double? Rating { get; set; }
         public double? PriceBeforeDiscount { get; set; }
