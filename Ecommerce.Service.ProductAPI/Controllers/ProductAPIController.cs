@@ -177,6 +177,7 @@ namespace Ecommerce.Service.ProductAPI.Controllers
             {
                 Product product = _mapper.Map<Product>(productDto);
 
+
                 int id = _repoProduct.Update(product);
 
                 if (productDto.ImagePhotos != null && productDto.ImagePhotos.Count() > 0)

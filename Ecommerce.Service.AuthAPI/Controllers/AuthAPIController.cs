@@ -12,12 +12,14 @@ namespace Ecommerce.Service.AuthAPI.Controllers
     public class AuthAPIController : Controller
     {
         private readonly IAuthService _authService;
+        private readonly IJwtTokenGenerator _tokenService;
         private readonly IMessageBus _messageBus;
         private readonly IConfiguration _configuration;
         protected ResponseDto _response;
-        public AuthAPIController(IAuthService authService, IMessageBus messageBus, IConfiguration configuration)
+        public AuthAPIController(IAuthService authService, IMessageBus messageBus, IConfiguration configuration, IJwtTokenGenerator tokenService)
         {
             _authService = authService;
+            _tokenService = tokenService;
             _configuration = configuration;
             _messageBus = messageBus;
             _response = new();
@@ -37,15 +39,15 @@ namespace Ecommerce.Service.AuthAPI.Controllers
                 _response.type = errorMessage.Contains("Passwords") ? "password" : "email";
                 return BadRequest(_response);
             }
-            var topic_name = _configuration.GetValue<string>("TopicAndQueueNames:RegisterUserQueue");
-            await _messageBus.PublishMessage(model.Email, topic_name);
+            //var topic_name = _configuration.GetValue<string>("TopicAndQueueNames:RegisterUserQueue");
+            //await _messageBus.PublishMessage(model.Email, topic_name);
             return Ok(_response);
         }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequestDto model)
-            {
-                var loginResponse = await _authService.Login(model);
+        {
+            var loginResponse = await _authService.Login(model);
             if (loginResponse.User == null)
             {
                 _response.IsSuccess = false;
@@ -58,20 +60,23 @@ namespace Ecommerce.Service.AuthAPI.Controllers
 
         }
 
-        [Authorize]
         [HttpPost("Refresh")]
         public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequest model)
         {
-            var responseRefresh = await _authService.Refresh(model);
-            if (responseRefresh == null)
+            try
+            {
+               var  resfreshResponse = await  _authService.Refresh(model);
+                _response.Data = resfreshResponse;
+                return Ok(_response);
+
+            }
+            catch (Exception ex)    
             {
                 _response.IsSuccess = false;
-                _response.Message = "Invalid token";
-                return BadRequest(_response);
+                _response.Message = ex.Message;
             }
-            _response.Data = responseRefresh;
-            return Ok(_response);
-
+            return BadRequest(_response);
+            
         }
 
         [Authorize]
@@ -149,7 +154,8 @@ namespace Ecommerce.Service.AuthAPI.Controllers
         {
             try
             {
-                await _authService.ChangePassword(model);
+                var response = await _authService.ChangePassword(model);
+                
                 return Ok(_response);
             }
             catch (Exception ex) {

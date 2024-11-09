@@ -8,14 +8,13 @@ namespace Ecommerce.Service.ProductAPI.Models
         [Required]
         public string Name { get; set; }
         [Range(1, 1000)]
-        public double Price { get; set; }
-        public string Description { get; set; }
-        public int CategoryId { get; set; }
-        public Category Category { get; set; }
-        public int BrandId { get; set; }
-        public Brand Brand { get; set; }
-
-        public IReadOnlyList<Photo> Images { get; set; }
+        public double? Price { get; set; }
+        public string? Description { get; set; }
+        public int? CategoryId { get; set; }
+        public Category? Category { get; set; }
+        public int? BrandId { get; set; }
+        public Brand? Brand { get; set; }
+        public IReadOnlyList<Photo>? Images { get; set; }
         public string? Image { get; set; }
         public double? Rating { get; set; }
         public double? PriceBeforeDiscount { get; set; }

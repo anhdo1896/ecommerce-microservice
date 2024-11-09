@@ -5,6 +5,8 @@ using Ecommerce.Service.AuthAPI.Service.IService;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Http;
 using System;
+using Azure;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Ecommerce.Service.AuthAPI.Service
 {
@@ -54,8 +56,13 @@ namespace Ecommerce.Service.AuthAPI.Service
 
             //if user was found , Generate JWT Token
             var roles = await _userManager.GetRolesAsync(user);
-            var token = "Bearer " + _jwtTokenGenerator.GenerateToken(user, roles);
-            var tokenRefresh = "Bearer " + _jwtTokenGenerator.GenerateRefreshToken(user, roles);
+            var token =  _jwtTokenGenerator.GenerateToken(user, roles);
+            var tokenRefresh = _jwtTokenGenerator.GenerateRefreshToken();
+
+            user.RefreshToken = tokenRefresh;
+            user.RefreshTokenExpiryTime = DateTime.Now.AddMinutes(15);
+
+            _db.SaveChanges();
 
             UserDto userDTO = new()
             {
@@ -88,11 +95,10 @@ namespace Ecommerce.Service.AuthAPI.Service
                 Email = registrationRequestDto.Email,
                 NormalizedEmail = registrationRequestDto.Email.ToUpper(),
                 Name = registrationRequestDto.Name != null ? registrationRequestDto.Name : "",
-                PhoneNumber = registrationRequestDto.PhoneNumber != null ? registrationRequestDto.PhoneNumber : ""
+                PhoneNumber = registrationRequestDto.PhoneNumber != null ? registrationRequestDto.PhoneNumber : "",
+                Address = registrationRequestDto.Address != null ? registrationRequestDto.Address : ""
             };
 
-            try
-            {
                 var result = await _userManager.CreateAsync(user, registrationRequestDto.Password);
                 if (result.Succeeded)
                 {
@@ -114,15 +120,11 @@ namespace Ecommerce.Service.AuthAPI.Service
                     return result.Errors.FirstOrDefault().Description;
                 }
 
-            }
-            catch (Exception ex)
-            {
-
-            }
-            return "Error Encountered";
+            
+            
         }
 
-        public  async Task<ApplicationUser> EditUser(UserRequestDto registrationRequestDto)
+        public  async Task<UserDto> EditUser(UserRequestDto registrationRequestDto)
         {
             var user = _db.ApplicationUsers.FirstOrDefault(u => u.UserName.ToLower() == registrationRequestDto.Email.ToLower());
 
@@ -134,60 +136,61 @@ namespace Ecommerce.Service.AuthAPI.Service
             user.DateOfBirth = (DateTime)registrationRequestDto.DateOfBirth;
 
 
-            try
+            
+            var result = await _userManager.UpdateAsync(user);
+            if (result.Succeeded)
             {
-                var result = await _userManager.UpdateAsync(user);
-                if (result.Succeeded)
+                var userToReturn = _db.ApplicationUsers.First(u => u.UserName == registrationRequestDto.Email);
+                var roles = await _userManager.GetRolesAsync(userToReturn);
+                UserDto userDTO = new()
                 {
-                    var userToReturn = _db.ApplicationUsers.First(u => u.UserName == registrationRequestDto.Email);
+                    Email = userToReturn.Email,
+                    ID = userToReturn.Id,
+                    Name = userToReturn.Name,
+                    PhoneNumber = userToReturn.PhoneNumber,
+                    Roles = roles,
+                    Address = userToReturn.Address,
+                    Avatar = userToReturn.Avatar,
+                    DateOfBirth = userToReturn.DateOfBirth
+                };
+
+                return userDTO;
 
                    
-                    return userToReturn;
-
-                }
-                else
-                {
-                    return null;
-                }
 
             }
-            catch (Exception ex)
+            else
             {
                 return null;
-
             }
+
+           
         }
 
         public async Task<string> ChangePassword (ChangePasswordDto changePassword)
         {
             var user = _db.ApplicationUsers.FirstOrDefault(u => u.UserName.ToLower() == changePassword.Email.ToLower());
 
-            try
-            {
+           
                 var result = await _userManager.ChangePasswordAsync(user, changePassword.CurrentPassword, changePassword.NewPassword);
                 if (result.Succeeded)
                 {
-                  
+                    _db.SaveChanges();
+
                     return "";
 
                 }
                 else
                 {
-                    return result.Errors.FirstOrDefault().Description;
+                     throw new Exception (result.Errors.FirstOrDefault().Description);
                 }
 
-            }
-            catch (Exception ex)
-            {
-                return ex.Message;
-            }
+ 
         }
 
         public async Task<UserDto> GetUser(string id)
         {
-            try
-            {
-
+           
                 var user = _db.ApplicationUsers.FirstOrDefault(u => u.Id == id);
                 var roles = await _userManager.GetRolesAsync(user);
                 UserDto userDTO = new()
@@ -201,38 +204,35 @@ namespace Ecommerce.Service.AuthAPI.Service
                     Avatar = user.Avatar,
                     DateOfBirth= user.DateOfBirth
                 };
-                return userDTO;
-
-            }
-            catch (Exception ex)
-            {
-            }
-            return null;
+                return userDTO;  
 
         }
 
         public async Task<RefreshResponseDto> Refresh(RefreshTokenRequest refreshTokenRequest)
         {
 
-            ApplicationUser user = new()
+            if (refreshTokenRequest is null)
             {
-                Email = refreshTokenRequest.Email,
-                Id = refreshTokenRequest.Id,
-                UserName = refreshTokenRequest.Username,
-            };
-            //if user was found , Generate JWT Token
-            var token = "Bearer " + _jwtTokenGenerator.GenerateToken(user, refreshTokenRequest.roles);
-            var tokenRefresh = "Bearer " + _jwtTokenGenerator.GenerateRefreshToken(user, refreshTokenRequest.roles);
+                throw new SecurityTokenException("Invalid refresh token");
+            }
 
+            var principal = _jwtTokenGenerator.GetClaimsPrincipalFromExpriredToken(refreshTokenRequest.AccessToken);
+            var username = principal.Claims.Select(x => x.Value).First();
 
+            var user = _db.ApplicationUsers.FirstOrDefault(u => u.UserName == username);
+            var roles = await _userManager.GetRolesAsync(user);
 
-            RefreshResponseDto loginResponseDto = new RefreshResponseDto()
+            if( user is null || user.RefreshToken != refreshTokenRequest.RefreshToken || user.RefreshTokenExpiryTime <= DateTime.Now)
             {
-                Token = token,
-                RefreshToken = tokenRefresh
-            };
+                throw new ("Invalid refesh token");
+            }
 
-            return loginResponseDto;
+            var newAcessToken = _jwtTokenGenerator.GenerateToken(user,roles);
+
+            return new RefreshResponseDto
+            {
+                Token = newAcessToken,
+            };
         }
     }
 

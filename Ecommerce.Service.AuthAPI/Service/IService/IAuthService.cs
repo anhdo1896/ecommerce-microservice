@@ -9,7 +9,7 @@ namespace Ecommerce.Service.AuthAPI.Service.IService
         Task<LoginResponseDto> Login(LoginRequestDto loginRequestDto);
         Task<RefreshResponseDto> Refresh(RefreshTokenRequest loginRequestDto);
         Task<bool> AssignRole(string email, string roleName);
-        Task<ApplicationUser> EditUser(UserRequestDto registrationRequestDto);
+        Task<UserDto> EditUser(UserRequestDto registrationRequestDto);
         Task<string> ChangePassword(ChangePasswordDto changePasswordDto);
         Task<UserDto> GetUser(string id);
     }
