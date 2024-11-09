@@ -65,4 +65,3 @@ Responsibilities:
 - `EmailAPI`: [Demo](ecommerceserviceemailapi.azurewebsites.net)
 - `RewardAPI`: [Demo](ecommerceservicerewardapi.azurewebsites.net)
 - `API Gateway`: [Demo](ecommercegatewaysolution.azurewebsites.net) 
->>>>>>> 5106ab09451edc42845b556cc6b92bd5479a7d20
