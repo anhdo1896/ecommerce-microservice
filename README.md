@@ -1,6 +1,8 @@
 # API  E-commerce System with Microservices
 ## Overview:
 This e-commerce platform is designed with a microservice architecture to ensure scalability, flexibility, and maintainability. Each service focuses on a specific domain, including user authentication, product management, shopping cart, orders, coupons, and rewards. Services communicate asynchronously using RabbitMQ or Azure Service Bus. Ocelot serves as the API Gateway for routing, and Stripe handles secure payment processing. The system is built using ASP.NET Core and SQL Server for data storage, with integration for rewarding users post-purchase.
+## Front end Repository 
+The Front end repo can be found at: https://github.com/anhdo1896/ecommerce-reactjs
 
 ## Technology Stack
 - `Backend Framework`: ASP.NET Core
