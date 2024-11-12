@@ -13,7 +13,7 @@ namespace Ecommerce.MessageBus
 
         public async Task PublishMessage(object message, string topic_queue_Name)
         {
-            await using var client = new ServiceBusClient(AzureKey.KEY_AZURE);
+            await using var client = new ServiceBusClient("");
 
             ServiceBusSender sender = client.CreateSender(topic_queue_Name);
 

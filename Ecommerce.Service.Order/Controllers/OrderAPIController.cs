@@ -24,11 +24,11 @@ namespace Ecommerce.Service.Order.Controllers
         private readonly DataContext _db;
         private IProductService _productService;
         //private readonly IMessageBus _messageBus;
-        private readonly IRabbmitMQFanoutMessageSender _messageBus;
+        private readonly IRabbitMQFanoutMessageSender _messageBus;
         private readonly IConfiguration _configuration;
         public OrderAPIController(DataContext db,
             IProductService productService, IMapper mapper, IConfiguration configuration
-            , IRabbmitMQFanoutMessageSender messageBus)
+            , IRabbitMQFanoutMessageSender messageBus)
         {
             _db = db;
             _messageBus = messageBus;

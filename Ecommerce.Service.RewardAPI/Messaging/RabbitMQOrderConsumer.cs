@@ -13,7 +13,7 @@ namespace Ecommerce.Service.RewardAPI.Messaging
         private readonly IConfiguration _configuration;
         private readonly RewardService _rewardService;
         private IConnection _connection;
-        private IModel _channel;
+        private RabbitMQ.Client.IModel _channel;
         private const string OrderCreated_RewardsUpdateQueue = "RewardsUpdateQueue";
         private string ExchangeName = "";
         public RabbitMQOrderConsumer(IConfiguration configuration, RewardService rewardService)
