@@ -58,12 +58,4 @@ Responsibilities:
 - Secure all routes using JWT tokens.
 
 ## Deployment
-
-- `AuthAPI`: [Demo](ecommerceserviceauthapi.azurewebsites.net)
-- `ProductAPI`: [Demo](ecommerceserviceauthapi.azurewebsites.net)
-- `CouponAPI`: [Demo](ecommerceserviceauthapi.azurewebsites.net)
-- `CartAPI`: [Demo](ecommerceserviceauthapi.azurewebsites.net)
-- `OrderAPI`: [Demo](ecommerceserviceorder.azurewebsites.net)
-- `EmailAPI`: [Demo](ecommerceserviceemailapi.azurewebsites.net)
-- `RewardAPI`: [Demo](ecommerceservicerewardapi.azurewebsites.net)
-- `API Gateway`: [Demo](ecommercegatewaysolution.azurewebsites.net) 
+`Live Demo`: [Demo](http://ecommerces-microservice-staging-anhdo.s3-website-us-east-1.amazonaws.com/)
