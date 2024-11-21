@@ -23,6 +23,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ecommerce.Service.EmailAPI"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ecommerce.GatewaySolution", "Ecommerce.GatewaySolution\Ecommerce.GatewaySolution.csproj", "{DF83586A-5346-4DC3-B23D-D1438483FC4A}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UnitTest", "UnitTest", "{FC4BCA1D-890E-4C44-8290-34390391A3FD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Ecommerce.AuthAPI.Test", "Ecommerce.AuthAPI.Test", "{4ADEAFB3-9ED1-4101-8183-29698A372B39}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ecommerce.AuthAPI.Service.Test", "Ecommerce.AuthAPI.Service.Test\Ecommerce.AuthAPI.Service.Test.csproj", "{24092C2E-85B7-41EC-98C7-11DE12F073CC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ecommernce.AuthAPI.Data.Test", "Ecommernce.AuthAPI.Data.test\Ecommernce.AuthAPI.Data.Test.csproj", "{986BB8C7-B339-4E03-B90C-18DC6919B939}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -65,12 +73,23 @@ Global
 		{DF83586A-5346-4DC3-B23D-D1438483FC4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DF83586A-5346-4DC3-B23D-D1438483FC4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DF83586A-5346-4DC3-B23D-D1438483FC4A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{24092C2E-85B7-41EC-98C7-11DE12F073CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{24092C2E-85B7-41EC-98C7-11DE12F073CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{24092C2E-85B7-41EC-98C7-11DE12F073CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{24092C2E-85B7-41EC-98C7-11DE12F073CC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{986BB8C7-B339-4E03-B90C-18DC6919B939}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{986BB8C7-B339-4E03-B90C-18DC6919B939}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{986BB8C7-B339-4E03-B90C-18DC6919B939}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{986BB8C7-B339-4E03-B90C-18DC6919B939}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{1ED764FA-E06C-4BA4-8E2A-0C7A48A6DCC8} = {D6B7196F-9958-4491-BC8F-73A64ACA8094}
+		{4ADEAFB3-9ED1-4101-8183-29698A372B39} = {FC4BCA1D-890E-4C44-8290-34390391A3FD}
+		{24092C2E-85B7-41EC-98C7-11DE12F073CC} = {4ADEAFB3-9ED1-4101-8183-29698A372B39}
+		{986BB8C7-B339-4E03-B90C-18DC6919B939} = {4ADEAFB3-9ED1-4101-8183-29698A372B39}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8DCE6523-D6F1-4865-A419-24792748088D}
